@@ -30,3 +30,21 @@ The injected payload modifies the SQL query to:
 SELECT * FROM users WHERE username = '' OR 1=1 -- ' AND password = ''
 ```
 The database sees `OR 1=1`, which is always true, and the `--` comment marker tells the database to ignore the rest of the query (the password check). The query therefore returns the first user in the database, resulting in a successful login bypass.
+
+### The Fix: Parameterised Queries & Password Hashing
+
+The application has been patched to prevent SQL Injection and to securely store user passwords.
+
+1.  **SQL Injection:** The vulnerable f-string query was replaced with a **parameterised query**. The `?` placeholder ensures that user input is treated as data, not as executable code, making injection attacks impossible.
+
+    **Secure Code (`app.py`):**
+    ```python
+    query = 'SELECT * FROM users WHERE username = ?'
+    user = conn.execute(query, (username,)).fetchone()
+    ```
+
+2.  **Password Storage:** Plaintext passwords have been replaced with secure hashes using the `bcrypt` library.
+    * **Hashing:** New passwords are put through a one-way hashing algorithm with a random salt before being stored.
+    * **Verification:** At login, the submitted password is put through the same process and the resulting hash is compared to the one in the database. This means the actual password is never stored or compared directly.
+
+---
