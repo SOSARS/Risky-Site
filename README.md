@@ -1,6 +1,6 @@
 ---
 
-## 🔬 Security Analysis: SQL Injection (CVE-2021-44228)
+## 🔬 Security Analysis: SQL Injection (AUTH BYPASS variant)
 
 This initial version of the application is **intentionally vulnerable** to a classic SQL Injection attack.
 
