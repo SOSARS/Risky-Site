@@ -1,8 +1,6 @@
-## Attach poster + learning facility link to the invite
-# send link to const
-
-
 import sqlite3
+from auth import hash_password
+
 
 DATABASE = "users.db"
 
@@ -20,12 +18,13 @@ def init_db():
     with open("schema.sql") as f:
         conn.executescript(f.read())
 
+    hashed_password = hash_password("password123")
     # Insert a sample user
     cursor = conn.cursor()
     cursor.execute('''INSERT INTO users (username, password)
-                       VALUES (?, ?)''', ("admin", "password123"))
+                       VALUES (?, ?)''', ("admin", hashed_password))
     conn.commit()
     conn.close()
-    print("Database initialised with a sample user")
+    print("Database initialised with a securely hashed sample user.")
 
 

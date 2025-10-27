@@ -1,0 +1,20 @@
+# Python cache files
+__pycache__/
+*.pyc
+
+# Virtual Environment
+venv/
+
+# Secrets & Local Config
+.env
+
+# Local Database
+users.db
+
+# IDE configuration folders
+.idea/
+.vscode/
+
+# Project-specific utility scripts
+# This was a one-off script for testing, not part of the main app
+hash_pass.py
