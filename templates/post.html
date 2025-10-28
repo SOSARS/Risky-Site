@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Blog Post</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        .comment-box { border: 1px solid #ccc; padding: 10px; margin-top: 15px; }
+        .comment-meta { font-size: 0.8em; color: #555; }
+        textarea { width: 400px; height: 80px; }
+    </style>
+</head>
+<body>
+    <h1>My First Blog Post</h1>
+    <p>This is a great blog post. Please leave your comments below.</p>
+    <p><a href="{{ url_for('logout') }}">Logout</a></p>
+
+    <hr>
+
+    <h2>Leave a Comment</h2>
+    <form method="post">
+        <textarea name="comment" placeholder="Share your thoughts..."></textarea>
+        <br>
+        <input type="submit" value="Post Comment">
+    </form>
+
+    <hr>
+
+    <h2>Comments</h2>
+    {% for comment in comments %}
+        <div class="comment-box">
+            <p>{{ comment['content'] | safe }}</p>
+            <p class="comment-meta">Posted by: <strong>{{ comment['username'] }}</strong> on {{ comment['created'] }}</p>
+        </div>
+    {% else %}
+        <p>No comments yet. Be the first!</p>
+    {% endfor %}
+
+</body>
+</html>

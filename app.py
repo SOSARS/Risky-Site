@@ -1,55 +1,76 @@
-import os
-
-from flask import Flask, request, render_template, flash, redirect, url_for
+from flask import Flask, request, render_template, flash, redirect, url_for, session
 from db import get_db_connection
 from auth import verify_password
 import os
 
-
 app = Flask(__name__)
-app.config["SECRET_KEY"] = os.urandom(32)
+
+# Essential for signing the session cookie
+app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "dev-key-change-in-production")
 
 
-@app.route('/', methods=["GET", "POST"])
+@app.route("/", methods=["GET", "POST"])
 def index():
-    error_message = None
+
+    # If the user is already logged in, redirect them away from the login page
+    if "username" in session:
+        return redirect(url_for("post"))
 
     if request.method == "POST":
-        username = request.form.get("username")  # Prevents crashing if the key is missing
-        password = request.form.get("password")
+        username = request.form.get("username", "")
+        password = request.form.get("password", "")
 
         conn = get_db_connection()
 
-        # --- Vulnerability Fix ----
-        # 1. Securely query for the user's username ONLY.
-        # The '?' is a palceholder that prevents the SQL Injection.
+        # Parameterised query prevents SQL injection
         user = conn.execute(
             "SELECT * FROM users WHERE username = ?", (username,)
         ).fetchone()
         conn.close()
 
-        # 2. Verify if the user is found AND if their password matches the hash.
+        # Verify user exists AND password matches
         if user and verify_password(password, user["password"]):
-            flash("Login successful!", "success")  # Optional success message
-            return f"<h2>Welcome {username}!</h2><p>Login successful ☑️"
+            # On successful login, store the username in the session
+            session["username"] = user["username"]
+            return redirect(url_for("post"))  # Redirect to the post page
         else:
             flash("Invalid credentials. Please try again.", "error")
-            error_message = "❌ Invalid credentials. Please try again."
             return redirect(url_for("index"))
 
-    return render_template("login.html", error_message=error_message)
+    return render_template("login.html")
+
+
+@app.route("/post", methods=["GET", "POST"])
+def post():
+    if "username" not in session:
+        flash("You must be logged in to view this page.", "error")
+        return redirect(url_for("index"))
+
+    conn = get_db_connection()
+
+    # Handle a new comment being posted
+    if request.method == "POST":
+        comment_text = request.form.get("comment")
+        if comment_text:
+            # Insert new comment into the database
+            conn.execute("INSERT INTO comments (username, content) VALUES (?, ?)",
+                         (session["username"], comment_text))
+            conn.commit()
+            return redirect(url_for("post"))  # Refresh the page
+
+    # Fetch all existing comments to display
+    comments = conn.execute("SELECT * FROM comments ORDER BY created DESC").fetchall()
+    conn.close()
+
+    return render_template("post.html", comments=comments)
+
+
+@app.route("/logout")
+def logout():
+    session.clear()  # Clear the session cookie
+    flash("You have been logged out.", "info")
+    return redirect(url_for("index"))
 
 
 if __name__ == "__main__":
     app.run(debug=True)
-
-
-
-
-
-
-
-
-
-
-
