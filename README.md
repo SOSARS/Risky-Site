@@ -1,50 +1,144 @@
+# RiskySite 🔓: A Deliberately Insecure Web Application
+
+![Python](https://img.shields.io/badge/Python-3.11-blue.svg)
+![License](https://img.shields.io/badge/License-MIT-green.svg)
+
+This project is a simple blog application built with Flask and SQLite. It is **intentionally vulnerable** to some of the most common and critical web security flaws, as defined by the OWASP Top 10.
+
+Its purpose is to serve as a hands-on learning sandbox to demonstrate a practical understanding of identifying, exploiting, and — most importantly — **patching** major security vulnerabilities.
+
 ---
 
-## 🔬 Security Analysis: SQL Injection (AUTH BYPASS variant)
+## 🎯 Learning Objectives Demonstrated
 
-This initial version of the application is **intentionally vulnerable** to a classic SQL Injection attack.
+This project showcases a practical understanding of the following security concepts:
 
-### The Flaw
-The vulnerability exists in the `app.py` file, where user input is directly formatted into an SQL query using an f-string. This allows an attacker to inject their own SQL commands.
+* **Vulnerability Identification & Exploitation:**
+    * **SQL Injection (SQLi):** Bypassing authentication by injecting malicious SQL into login forms.
+    * **Stored Cross-Site Scripting (XSS):** Injecting malicious JavaScript into a comments section to hijack other users' sessions.
+* **Defensive Coding & Patching:**
+    * **Password Hashing:** Using `bcrypt` to securely store passwords instead of plaintext.
+    * **Parameterised Queries:** The industry-standard method for preventing SQL Injection.
+    * **Input Sanitisation & Output Escaping:** The core principle for mitigating XSS attacks.
 
-**Vulnerable Code (`app.py`):**
+---
+
+## 🧰 Tech Stack
+
+| Category         | Tools & Libraries                               |
+| ---------------- | ----------------------------------------------- |
+| **Language** | Python 3                                        |
+| **Framework** | Flask                                           |
+| **Database** | SQLite                                          |
+| **Authentication** | `bcrypt` for secure password hashing            |
+| **Frontend** | Basic HTML & CSS with Jinja2 Templating         |
+
+---
+
+## 🚀 Getting Started
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/SOSARS/Risky-Site.git
+cd Risky-Site
 ```
-python
+
+### 2. Environmen Setup
+Create and activate a Python virtual environment
+``` PowerShell
+# Create the virtual environment
+py -m venv venv
+
+# Activate it
+.\venv\Scripts\Activate.ps1
+```
+
+### 3. Install Dependencies
+```Bash
+pip install -r requirements.txt
+```
+
+```PowerShell
+py -m pip install -r requirements.txt
+```
+
+### 4. Initialise the Database
+This script creates the users.db file and populates it with a sample admin account.
+```Bash
+python3 init_db.py
+```
+
+```PowerShell
+py init_db.py
+```
+
+### 5. Run the Application
+```Bash
+python3 app.py
+```
+
+```PowerShell
+py app.py
+```
+
+---
+#### The application will now be running at `http://127.0.0.1:5000`
+---
+
+# 🔬 Security Analysis: The Two Flaws
+This application was built with two critical, intentional vulnerabilities. The Git history for this project tells the story of their discovery, documentation, and remediation.
+
+### 🚩 Vulnerability #1: SQL Injection
+* **The Flaw:** The initial login logic used an unsafe f-string to build the SQL query, directly embedding user input. This allowed an attacker to break out of the string and inject their own SQL commands.
+
+#### ❌ Vulnerable Code (`app.py`):
+
+```Python
 query = f"SELECT * FROM users WHERE username = '{username}' AND password = '{password}'"
 ```
 
-### The Exploit
-An attacker can bypass the login form without a password by injecting a tautology (a statement that is always true) into the query.
-1. **Run the application:** `py app.py`
-2. **Open the login form** in a browser.
-3. **Enter the following payload** in the `username` field:
-```SQL
-' OR 1=1 --
+* **The Exploit:** By entering `' OR 1=1 --` into the username field, an attacker could create a query that is always true, bypassing the password check entirely.
+
+* **The Fix:** The flaw was patched by replacing the f-string with a parameterised query. The `?` placeholder ensures that user input is always treated as data, never as executable code, making SQL injection impossible.
+
+#### 🩹 Secure Code (`app.py`):
+```Python
+query = 'SELECT * FROM users WHERE username = ?'
+user = conn.execute(query, (username,)).fetchone()
 ```
-4. Leave the `password` field blank and submit.
 
+### 🚩 Vulnerability #2: Stored Cross-Site Scripting (XSS)
+* **The Flaw:** The comments section was designed to display user content using the `| safe` filter in the Jinja2 template. This explicitly disabled Flask's automatic output escaping, allowing any HTML or JavaScript submitted as a comment to be rendered and executed by other users' browsers.
 
-### Why It Works
-The injected payload modifies the SQL query to:
-```SQL
-SELECT * FROM users WHERE username = '' OR 1=1 -- ' AND password = ''
+#### ❌ Vulnerable Code (`post.html`):
+```HTML
+<p>{{ comment['content'] | safe }}</p>
 ```
-The database sees `OR 1=1`, which is always true, and the `--` comment marker tells the database to ignore the rest of the query (the password check). The query therefore returns the first user in the database, resulting in a successful login bypass.
 
-### The Fix: Parameterised Queries & Password Hashing
+* **The Exploit:** An attacker could post a comment containing a `<script>` tag. A common payload to demonstrate this is one that steals a user's session cookie: `<script>alert(document.cookie)</script>`. This script would then execute for every user who viewed the page.
 
-The application has been patched to prevent SQL Injection and to securely store user passwords.
+* **The Fix:** The vulnerability was patched by simply removing the `| safe` filter. This re-enables Flask's default security, which automatically escapes dangerous characters (like `<` and `>`), rendering them as harmless text and preventing the browser from executing any injected scripts.
 
-1.  **SQL Injection:** The vulnerable f-string query was replaced with a **parameterised query**. The `?` placeholder ensures that user input is treated as data, not as executable code, making injection attacks impossible.
-
-    **Secure Code (`app.py`):**
-    ```python
-    query = 'SELECT * FROM users WHERE username = ?'
-    user = conn.execute(query, (username,)).fetchone()
-    ```
-
-2.  **Password Storage:** Plaintext passwords have been replaced with secure hashes using the `bcrypt` library.
-    * **Hashing:** New passwords are put through a one-way hashing algorithm with a random salt before being stored.
-    * **Verification:** At login, the submitted password is put through the same process and the resulting hash is compared to the one in the database. This means the actual password is never stored or compared directly.
+#### 🩹 Secure Code (`post.html`):
+```HTML
+<p>{{ comment['content'] }}</p>
+```
 
 ---
+
+## 🏗️ Project Structure
+Risky-Site/
+├── venv/
+├── templates/
+│   ├── login.html
+│   └── post.html
+├── .gitignore
+├── app.py              # Main Flask application, routes
+├── auth.py             # Password hashing & verification functions
+├── db.py               # Database connection & initialisation logic
+├── init_db.py          # Script to set up the database
+├── requirements.txt
+└── schema.sql          # SQL schema for the database tables
+
+
+
