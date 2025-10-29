@@ -94,31 +94,36 @@ py -m venv venv
 ```
 
 ### 3. Install Dependencies
-```Bash
-pip install -r requirements.txt   # Bash
+**Bash:**
 ```
-
+pip install -r requirements.txt
+```
+**Windows:**
 ```PowerShell
-py -m pip install -r requirements.txt  # Windows
+py -m pip install -r requirements.txt
 ```
 
 ### 4. Initialise the Database
 This script creates the users.db file and populates it with a sample admin account.
-```Bash
-python3 init_db.py  # Bash
+**Bash:**
+```
+python3 init_db.py
 ```
 
+**Windows:**
 ```PowerShell
-py init_db.py  # Windows
+py init_db.py 
 ```
 
 ### 5. Run the Application
-```Bash
-python3 app.py  # Bash
+**Bash:**
+```
+python3 app.py  
 ```
 
+**Windows:**
 ```PowerShell
-py app.py  # Windows
+py app.py
 ```
 
 ---
