@@ -105,6 +105,7 @@ py -m pip install -r requirements.txt
 
 ### 4. Initialise the Database
 This script creates the users.db file and populates it with a sample admin account.
+
 **Bash:**
 ```
 python3 init_db.py
