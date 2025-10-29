@@ -29,13 +29,53 @@ This project showcases a practical understanding of the following security conce
 | ---------------- | ----------------------------------------------- |
 | **Language** | Python 3                                        |
 | **Framework** | Flask                                           |
+| **Deployment** | **Docker**, **Docker Compose**, **Docker Hub** |
+| **Testing & CI/CD** | **pytest**, **GitHub Actions** |
 | **Database** | SQLite                                          |
 | **Authentication** | `bcrypt` for secure password hashing            |
-| **Frontend** | Basic HTML & CSS with Jinja2 Templating         |
 
 ---
 
 ## 🚀 Getting Started
+
+## 🐳 Quick Start with Docker (Recommended)
+This project is fully containerised - it is the easiest and most reliable way to run it.
+
+### Prerequisites
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) must be installed and running.
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/SOSARS/Risky-Site.git
+cd Risky-Site
+```
+
+#### 1.2 Create a `.env` file for the flask `SECRET_KEY`:
+```SECRET_KEY="a_long_random_string_for_flask_sessions"```
+
+### 2. Run the Application
+Once in the project directory, use Docker Compose to build and run the application. 
+
+```
+docker-compose up --build
+```
+The application will be running at `http://127.0.0.1:5000`. To stop it, press `Ctrl + C` in your terminal.
+
+---
+
+## 📦🐳 Run Directly from Docker Hub
+### 1. Create the `.env` file
+You still need to create a local `.env` file to provide the necessary `SECRET_KEY` for Flask sessions.
+```SECRET_KEY="a_long_random_string_for_flask_sessions"```
+
+### 2. Run the Container
+```docker run -p 5000:5000 --env-file .env sosars/risky-site:1.0```
+
+The application will now be running at `http://127.0.0.1:5000
+
+---
+
+## Old-Fashioned Way 👵🏽
 
 ### 1. Clone the Repository
 ```bash
@@ -127,6 +167,7 @@ user = conn.execute(query, (username,)).fetchone()
 ---
 
 ## 🏗️ Project Structure
+
 Risky-Site/
 ├── .gitignore          → Specifies files for Git to ignore.
 ├── app.py              → Main Flask application, handles web routes.
