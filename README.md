@@ -43,7 +43,7 @@ git clone https://github.com/SOSARS/Risky-Site.git
 cd Risky-Site
 ```
 
-### 2. Environmen Setup
+### 2. Environment Setup
 Create and activate a Python virtual environment
 ``` PowerShell
 # Create the virtual environment
@@ -55,30 +55,30 @@ py -m venv venv
 
 ### 3. Install Dependencies
 ```Bash
-pip install -r requirements.txt
+pip install -r requirements.txt   # Bash
 ```
 
 ```PowerShell
-py -m pip install -r requirements.txt
+py -m pip install -r requirements.txt  # Windows
 ```
 
 ### 4. Initialise the Database
 This script creates the users.db file and populates it with a sample admin account.
 ```Bash
-python3 init_db.py
+python3 init_db.py  # Bash
 ```
 
 ```PowerShell
-py init_db.py
+py init_db.py  # Windows
 ```
 
 ### 5. Run the Application
 ```Bash
-python3 app.py
+python3 app.py  # Bash
 ```
 
 ```PowerShell
-py app.py
+py app.py  # Windows
 ```
 
 ---
@@ -128,17 +128,17 @@ user = conn.execute(query, (username,)).fetchone()
 
 ## 🏗️ Project Structure
 Risky-Site/
-├── venv/
-├── templates/
-│   ├── login.html
-│   └── post.html
-├── .gitignore
-├── app.py              # Main Flask application, routes
-├── auth.py             # Password hashing & verification functions
-├── db.py               # Database connection & initialisation logic
-├── init_db.py          # Script to set up the database
-├── requirements.txt
-└── schema.sql          # SQL schema for the database tables
+├── .gitignore          → Specifies files for Git to ignore.
+├── app.py              → Main Flask application, handles web routes.
+├── auth.py             → Contains password hashing & verification functions.
+├── db.py               → Manages the database connection & setup.
+├── init_db.py          → A simple script to initialise the database.
+├── requirements.txt    → Lists all Python package dependencies.
+├── schema.sql          → The SQL blueprint for creating database tables.
+├── users.db            → The SQLite database file (created at runtime).
+└── templates/
+    ├── login.html      → The HTML template for the login page.
+    └── post.html       → The HTML template for the blog post & comments.
 
 
 
